@@ -9,7 +9,7 @@ void APF::set_command_vel(cv::Point2i& xri0,float& v,float& w)
 		vy /= v0;
 		//反時計回りを正(0~360)
 		float th = std::atan2(vy,vx);
-				float delta_th;
+		float delta_th;
 		//-180<th_t<180
 		if(th_t>M_PI)
 		{
@@ -32,7 +32,7 @@ void APF::set_command_vel(cv::Point2i& xri0,float& v,float& w)
 		{
 			delta_th= th -th_t;
 		}
-		delta_th=th-th_t;
+//		delta_th=th-th_t;
 		if(delta_th<-M_PI)
 		{
 			delta_th+=2*M_PI;
@@ -42,7 +42,7 @@ void APF::set_command_vel(cv::Point2i& xri0,float& v,float& w)
 			delta_th-=2*M_PI;
 		}
 		//角速度(P制御)
-		float Kp=1;
+		float Kp=0.05;
 		w=Kp*delta_th;
 		if(w>max_w)
 		{

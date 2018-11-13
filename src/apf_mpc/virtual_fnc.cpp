@@ -6,6 +6,7 @@ void APF_MPC::set_command_vel(const cv::Point2i& xri0,const float& v0,float& v,f
 	float vx = grad_xt;
 	float vy = grad_yt;
 	float v00 = std::sqrt(vx*vx+vy*vy);
+	// std::cout <<"vx,vy:"<<vx<<","<<vy<<"\n";
 	vx /= v00;
 	vy /= v00;
 	//反時計回りを正(0~360)

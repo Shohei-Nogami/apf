@@ -6,7 +6,7 @@ int main(int argc,char **argv)
 	ros::init(argc,argv,"apf_test");
 	
 	//apf
-	APF apf(10,10,0.1);
+	APF apf(100,100,0.01);
 	//or
 	//APF apf;
 	//apf.set_grid_param(10,10,0.1);//10,10,0.1);

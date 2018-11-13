@@ -19,7 +19,13 @@ find_package(catkin REQUIRED COMPONENTS
   #geometry_msgs
   OpenCV
 )
+find_package(OpenMP REQUIRED)
 
+if(OPENMP_FOUND)
+  message(STATUS "OPENMP FOUND")
+  set(OpenMP_FLAGS ${OpenMP_CXX_FLAGS})  # or if you use C: ${OpenMP_C_FLAGS}
+  set(OpenMP_LIBS gomp)
+endif()
 ## System dependencies are found with CMake's conventions
 #find_package(OpenCV REQUIRED)
 
@@ -114,6 +120,7 @@ catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES apf
   CATKIN_DEPENDS message_runtime
+  DEPENDS OpenMP
 #  CATKIN_DEPENDS roscpp rospy std_msgs
 #  DEPENDS system_lib
 )
@@ -134,18 +141,18 @@ include_directories(
 ## Declare a C++ library
 #APF_library
 add_library( APF_LIB
-  src/apf/apf.cpp src/apf/gradient_map.cpp src/apf/path_planning.cpp src/apf/coordinate_transform.cpp 
-  src/apf/grid_map.cpp src/apf/potential_map.cpp src/apf/set_param.cpp src/apf/debug.cpp
+  src/apf/apf.cpp src/apf/gradient_map.cpp src/apf/path_planning.cpp src/apf/coordinate_transform.cpp src/apf/potential_map.cpp 
+  src/apf/grid_map.cpp src/apf/set_param.cpp src/apf/debug.cpp
 )
 #APF_MPC_library
 add_library( APF_MPC_LIB
   src/apf_mpc/apf_mpc.cpp src/apf_mpc/set_data.cpp src/apf_mpc/virtual_fnc.cpp 
   src/apf_mpc/mv_pot_map.cpp  src/apf_mpc/mpc_func.cpp src/apf_mpc/debug.cpp
 )
-
-#link_directories(
-#  src/apf_mpc
-#)
+link_directories(
+  src/apf_mpc
+  src/apf
+)
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
@@ -221,11 +228,22 @@ install(DIRECTORY include#/${PROJECT_NAME}/
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
-add_executable(apf_test src/apf/apf_test.cpp )
-target_link_libraries(apf_test APF_LIB ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} )
+add_executable(apf_test src/apf/apf_test.cpp
+  src/apf/apf.cpp src/apf/gradient_map.cpp src/apf/path_planning.cpp src/apf/coordinate_transform.cpp src/apf/potential_map.cpp 
+  src/apf/grid_map.cpp src/apf/set_param.cpp src/apf/debug.cpp
+)
+
+target_compile_options(apf_test PRIVATE ${OpenMP_FLAGS})
+add_dependencies(apf_test ${catkin_EXPORTED_TARGETS} ${OpenMP_LIBS})
+#target_link_libraries(APF_LIB ${catkin_LIBRARIES} ${OpenMP_LIBS})
+#target_link_libraries(APF_MPC_LIB ${catkin_LIBRARIES} ${OpenMP_LIBS})
+
+target_link_libraries(apf_test APF_LIB ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${OpenMP_LIBS} )
 #
-add_executable(apf_mpc_test src/apf_mpc/apf_mpc_test.cpp )
-target_link_libraries(apf_mpc_test APF_LIB APF_MPC_LIB ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} )
+#add_executable(apf_mpc_test src/apf_mpc/apf_mpc_test.cpp src/apf/potential_map.cpp )
+#target_compile_options(apf_mpc_test PRIVATE ${OpenMP_FLAGS})
+#add_dependencies(apf_mpc_test ${catkin_EXPORTED_TARGETS})
+#target_link_libraries(apf_mpc_test APF_LIB APF_MPC_LIB ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${OpenMP_LIBS} )
 #set(CMAKE_CXX_FLAGS “-std=c++0x ${CMAKE_CXX_FLAGS}”)
 add_definitions(-std=c++11)
 

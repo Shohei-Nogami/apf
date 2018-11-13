@@ -4,8 +4,11 @@ void APF::set_pub_debug_images(void)
 {
 	int W=map_wi;
 	int H=map_hi;
-	
-	for(int h0=0;h0<H;h0++){
+	int h0;
+	#pragma omp parallel for
+	for(h0=0;h0<H;h0++){
+		//std::cout<<"omp_get_thread_num:"<<omp_get_thread_num()<<"\n";
+		//#pragma omp parallel for
 		for(int w0=0;w0<W;w0++){
 			//set potential
 			float pot=pot_map.at<float>(h0,w0);//*std::abs(sum_pot);

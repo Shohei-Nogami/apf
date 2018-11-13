@@ -40,6 +40,7 @@ float APF::culc_fr(const int& w0,const int& h0,const int& w1,const int& h1,const
 	float danger_rate=2;
 	float margin=0.1;
 	float eps=0.1;
+	//#pragma omp parallel for
 	for(int i=0;i<safe_rate;i++)
 	{	
 		if(dis>(rr+cr+margin)*(safe_rate-i)){
@@ -147,39 +148,15 @@ void APF::create_pot_map(void){
 	search_obst_pt();
 	int obst_num=(int)obst_pti.size();
 	//
+	#pragma omp parallel for
 	for(int h0=0;h0<H;h0++){
 		float *ppot = pot_map.ptr<float>(h0);
+		#pragma omp parallel for
 		for(int w0=0;w0<W;w0++){
 			//斥力算出
 			bool break_flag=false;
-			/*
-			for(int h=0;h<H;h++){
-				uint8_t *pgrid = grid_map.ptr<uint8_t>(h);
-				for(int w=0;w<W&&ros::ok();w++){
-					
-					if(h0==h&&w0==w)
-					{
-						continue;
-					}
-					//if(grid_map.at<uint8_t>(h,w)>=1)
-					if(pgrid[w * ch_g]>=1)
-					{
-						//L2
-						float dis=culc_dis(w0,h0,w,h);
-						//pot_map.at<float>(h0,w0)+=culc_fr(dis,obst_num);
-						ppot[w0 * ch_p]+=culc_fr(dis,obst_num);
-						if(dis<(rr+cr)){
-							break_flag=true;
-							break;
-						}
-						
-					}					
-				}
-				if(break_flag)
-					break;
-			}
-			*/
 			
+			//#pragma omp parallel for
 			for(int k=0;k<obst_pti.size();k++)
 			{
 				float dis=culc_dis(w0,h0,obst_pti[k].x,obst_pti[k].y);
